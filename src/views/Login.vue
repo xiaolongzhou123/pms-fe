@@ -52,15 +52,7 @@ const loginstore = useLogin()
 // });
 
 
-GetMenu().then((list: Menu[]) => {
-  console.log("==list:", list)
-  const parents = list.filter(routeInfo => routeInfo.pid === 0),
-    children = list.filter(routeInfo => routeInfo.pid !== 0)
 
-  console.log(parents, children)
-  dataToTree(parents, children)
-  menustore.UpdateMenu(parents)
-});
 
 function dataToTree(parents: Menu[], children: Menu[]) {
   parents.map(parent => {
@@ -85,8 +77,26 @@ const onSubmit = (param: any) => {
     const data = createLoginData(formData.account, formData.password)
     Login(data).then((res: ILogin) => {
 
-      console.log("try res==", res.access_token, res.refresh_token)
+      // console.log("try res==", res.access_token, res.refresh_token)
       loginstore.UpdateLogin(res)
+
+
+
+      //获取用户菜单
+      GetMenu().then((list: Menu[]) => {
+        console.log("==list:", list)
+        const parents = list.filter(routeInfo => routeInfo.pid === 0),
+          children = list.filter(routeInfo => routeInfo.pid !== 0)
+
+        console.log(parents, children)
+        dataToTree(parents, children)
+        menustore.UpdateMenu(parents)
+
+        router.replace({ path: '/' });
+
+
+      });
+
 
       // router.push()
     }).catch(error => {
@@ -125,9 +135,9 @@ const onSubmit = (param: any) => {
         </t-form-item>
 
         <!-- <div class="check-container remember-pwd">
-                                                                                                                                                                                                                          <t-checkbox>记住账号</t-checkbox>
-                                                                                                                                                                                                                          <span class="tip">忘记账号？</span>
-                                                                                                                                                                                                                        </div> -->
+                                                                                                                                                                                                                                      <t-checkbox>记住账号</t-checkbox>
+                                                                                                                                                                                                                                      <span class="tip">忘记账号？</span>
+                                                                                                                                                                                                                                    </div> -->
       </template>
 
       <t-form-item v-if="type !== 'qrcode'" class="btn-container">
