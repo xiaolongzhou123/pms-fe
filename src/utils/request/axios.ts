@@ -34,9 +34,7 @@ function isExipred(token: string) {
     const t1 = Math.round(new Date().getTime() / 1000)
     const t2 = obj.exp as number
 
-    console.log(t1)
-    console.log(t2)
-    console.log(t1 - t2)
+
     if ((t1 - t2) > 0) {
         return true
     }
@@ -51,24 +49,26 @@ request.interceptors.request.use(config => {
     if (config.url !== '/api/login' && loginstore.Info.access_token !== undefined) {
         config.headers.Authorization = loginstore.Info.access_token
     }
-    //判断是否超时
-
+    //判断是否超时，超时把refresh_token赋值 header 中Authorization
+    const ok = isExipred(loginstore.Info.access_token)
+    if (ok === true) {
+        config.headers.Authorization = loginstore.Info.refresh_token
+    }
 
 
     return config
 })
 // 添加响应拦截器
 request.interceptors.response.use(response => {
-    console.log("response.use(response)===", response)
+    // console.log("response.use(response)===", response)
     return response.data
 }, error => {
-    console.log("====响应拦截器:", error)
-    if (error.response.status === 401) {
-        // router.push("/login")
-        const loginstore = useLogin()
 
+    if (error.response.status === 401) {
+        const loginstore = useLogin()
         const ok = isExipred(loginstore.Info.access_token)
         if (ok === true) {
+
 
             console.log("超时")
 
